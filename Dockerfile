@@ -1,5 +1,4 @@
-FROM ubuntu:xenial
-LABEL maintainer "rutger@deknijf.com"
+FROM ubuntu:artful
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -16,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     libqt5svg5-dev \
  && rm -rf /var/lib/apt/lists/*
 
-ENV PGM_VERSION "0.9.0-beta1"
+ENV PGM_VERSION "0.9.0"
 
 RUN mkdir -p /usr/local/src/pgmodeler
 WORKDIR "/usr/local/src/pgmodeler"
