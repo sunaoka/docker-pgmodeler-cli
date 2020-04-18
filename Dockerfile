@@ -15,15 +15,18 @@ RUN apt-get update && apt-get install -y \
     libqt5svg5-dev \
  && rm -rf /var/lib/apt/lists/*
 
-ENV PGM_VERSION "0.9.1"
+ENV PGM_VERSION "0.9.3-alpha"
 
 RUN mkdir -p /usr/local/src/pgmodeler
 WORKDIR "/usr/local/src/pgmodeler"
 RUN wget https://github.com/pgmodeler/pgmodeler/archive/v$PGM_VERSION.tar.gz && \
-        tar -xzvf v$PGM_VERSION.tar.gz  && \
+        tar -xzvf v$PGM_VERSION.tar.gz && \
         rm -f v$PGM_VERSION.tar.gz
 
-RUN cd /usr/local/src/pgmodeler/pgmodeler-$PGM_VERSION/ && qmake pgmodeler.pro && make && make install
+RUN cd /usr/local/src/pgmodeler/pgmodeler-$PGM_VERSION/ && \
+        qmake pgmodeler.pro && \
+        make -j 10 && \
+        make install
 
 ENV QT_QPA_PLATFORM=offscreen
 
