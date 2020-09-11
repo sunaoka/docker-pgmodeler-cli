@@ -13,9 +13,10 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libpq-dev \
     libqt5svg5-dev \
+    fonts-noto \
  && rm -rf /var/lib/apt/lists/*
 
-ENV PGM_VERSION "0.9.3-alpha"
+ENV PGM_VERSION "0.9.3-beta"
 
 RUN mkdir -p /usr/local/src/pgmodeler
 WORKDIR "/usr/local/src/pgmodeler"
@@ -32,4 +33,7 @@ ENV QT_QPA_PLATFORM=offscreen
 
 ADD config /root/.config/pgmodeler/
 
-CMD /usr/local/bin/pgmodeler-cli
+WORKDIR /data
+
+ENTRYPOINT ["/usr/local/bin/pgmodeler-cli"]
+CMD []

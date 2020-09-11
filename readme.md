@@ -1,11 +1,27 @@
-pgmodeler-cli Docker image
-==========================
+# pgmodeler-cli Docker image
 
 Run pgmodeler-cli without building or installing.
 
 ## Usage
 
-    docker run -v $(pwd):/some/path geertjohan/pgmodeler-cli pgmodeler-cli --input /some/path/some.dbm --export-to-file --output /some/path/some.sql
+```bash
+docker run --rm -v $(pwd):/data sunaoka/pgmodeler-cli \
+    --export-to-file \
+    --input some.dbm \
+    --output some.sql
+```
+
+## Usage (Overwriting Settings)
+
+Copy the configuration file into the `$(pwd)/config` directory.
+
+```bash
+docker run --rm -v $(pwd):/data sunaoka/pgmodeler-cli \
+                -v $(pwd)/config:/root/.config/pgmodeler \
+    --export-to-file \
+    --input some.dbm \
+    --output some.sql
+```
 
 ## Tags
 
