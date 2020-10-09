@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
     fonts-noto \
  && rm -rf /var/lib/apt/lists/*
 
-ENV PGM_VERSION "0.9.3-beta"
+ENV PGM_VERSION "0.9.3-beta1"
 
 RUN mkdir -p /usr/local/src/pgmodeler
 WORKDIR "/usr/local/src/pgmodeler"
