@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     libqt5svg5-dev \
  && rm -rf /var/lib/apt/lists/*
 
-ENV PGM_VERSION "0.9.3-beta1"
+ENV PGM_VERSION "0.9.3"
 
 RUN mkdir -p /usr/local/src/pgmodeler
 WORKDIR "/usr/local/src/pgmodeler"
