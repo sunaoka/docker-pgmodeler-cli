@@ -1,20 +1,22 @@
-FROM ubuntu:bionic
+FROM ubuntu:focal
 
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    pkg-config\
-    wget \
-    qt5-default \
-    qt5-qmake \
-    libpq5 \
-    libxml2 \
-    pkg-config \
-    xml2 \
-    libxml2-dev \
-    libpq-dev \
-    libqt5svg5-dev \
-    fonts-noto \
- && rm -rf /var/lib/apt/lists/*
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt update && \
+    apt upgrade -y && \
+    apt install -y \
+        build-essential \
+        pkg-config\
+        wget \
+        qt5-default \
+        qt5-qmake \
+        libpq5 \
+        libxml2 \
+        pkg-config \
+        xml2 \
+        libxml2-dev \
+        libpq-dev \
+        libqt5svg5-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV PGM_VERSION "0.9.3"
 
