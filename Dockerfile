@@ -1,41 +1,56 @@
-FROM ubuntu:focal as base
+FROM ubuntu:jammy as base
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt update \
- && apt upgrade -y \
- && apt install -y \
-        libpq5 \
-        qt5-default
+RUN apt-get update \
+ && apt-get upgrade -y \
+ && apt-get install -y --no-install-recommends \
+            libpq5 \
+            libqt6network6 \
+            libqt6printsupport6 \
+            libqt6svg6 \
+            libqt6widgets6 \
+            qt6-qpa-plugins
 
 
 FROM base as builder
 
-ENV PGM_VERSION "0.9.3"
+ENV PGM_VERSION "1.0.1"
+
+ENV QT_SELECT qt6
 
 WORKDIR "/usr/local/src/pgmodeler"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt install -y \
-        build-essential \
-        libpq-dev \
-        libqt5svg5-dev \
-        libxml2-dev \
-        pkg-config \
-        qt5-qmake \
-        wget
+RUN apt-get install -y --no-install-recommends \
+            build-essential \
+            ca-certificates \
+            libgl-dev \
+            libpq-dev \
+            libqt6svg6-dev \
+            libxext-dev \
+            libxml2-dev \
+            pkg-config \
+            qt6-base-dev \
+            wget
+
+RUN ARCHITECTURE="$(uname -m)" \
+ && export ARCHITECTURE \
+ && printf "%s\n%s\n" "/usr/lib/qt6/bin" "/usr/lib/${ARCHITECTURE}-linux-gnu" > "/usr/share/qtchooser/qt6-${ARCHITECTURE}-linux-gnu.conf" \
+ && ln -s "/usr/share/qtchooser/qt6-${ARCHITECTURE}-linux-gnu.conf" "/usr/lib/${ARCHITECTURE}-linux-gnu/qtchooser/qt6.conf"
 
 RUN mkdir -p /usr/local/src/pgmodeler
 
-RUN wget https://github.com/pgmodeler/pgmodeler/archive/v$PGM_VERSION.tar.gz \
-  && tar -xzvf v$PGM_VERSION.tar.gz
+RUN wget -q "https://github.com/pgmodeler/pgmodeler/archive/v${PGM_VERSION}.tar.gz" \
+ && tar -xzvf "v${PGM_VERSION}.tar.gz"
 
-WORKDIR "/usr/local/src/pgmodeler/pgmodeler-$PGM_VERSION"
+WORKDIR "/usr/local/src/pgmodeler/pgmodeler-${PGM_VERSION}"
 
-RUN qmake pgmodeler.pro && \
-    make -j $(nproc) && \
-    make install
+RUN rm -f .qmake.stash \
+ && qmake -r CONFIG+=release pgmodeler.pro \
+ && make -j "$(nproc)" \
+ && make install
 
 WORKDIR "/usr/local/lib"
 
@@ -51,14 +66,15 @@ FROM base
 COPY --from=builder /tmp/pgmodeler-lib.tar /tmp/
 COPY --from=builder /tmp/pgmodeler-share.tar /tmp/
 COPY --from=builder /usr/local/bin/pgmodeler-cli /usr/local/bin/
-COPY config/ /root/.config/pgmodeler/
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt clean \
- && apt autoremove -y \
- && tar xvf /tmp/pgmodeler-lib.tar -C /usr/local/lib \
+RUN tar xvf /tmp/pgmodeler-lib.tar -C /usr/local/lib \
  && tar xvf /tmp/pgmodeler-share.tar -C /usr/local/share \
+ && mkdir -p /root/.config \
+ && ln -s /usr/local/share/pgmodeler/conf /root/.config/pgmodeler-1.0 \
+ && apt-get clean \
+ && apt-get autoremove -y \
  && rm -rf /var/lib/apt/lists/* \
  && rm -rf /tmp/* \
  && mkdir -p /tmp/runtime-root \
