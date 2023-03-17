@@ -15,7 +15,7 @@ RUN apt-get update \
 
 FROM base as builder
 
-ENV PGM_VERSION "1.0.1"
+ENV PGM_VERSION "1.0.2"
 
 ENV QT_SELECT qt6
 
