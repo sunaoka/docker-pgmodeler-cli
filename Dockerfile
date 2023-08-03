@@ -77,6 +77,7 @@ RUN tar xvf /tmp/pgmodeler-lib.tar -C /usr/local/lib \
  && tar xvf /tmp/pgmodeler-share.tar -C /usr/local/share \
  && mkdir -p /root/.config \
  && ln -s /usr/local/share/pgmodeler/conf /root/.config/pgmodeler-1.0 \
+ && apt-get install -y fonts-noto-cjk --no-install-recommends \
  && apt-get clean \
  && apt-get autoremove -y \
  && rm -rf /var/lib/apt/lists/* \
