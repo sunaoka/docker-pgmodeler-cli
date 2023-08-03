@@ -15,7 +15,9 @@ RUN apt-get update \
 
 FROM base as builder
 
-ENV PGM_VERSION "1.0.2"
+ARG PGM_VERSION
+
+ENV PGM_VERSION $PGM_VERSION
 
 ENV QT_SELECT qt6
 
@@ -50,7 +52,9 @@ WORKDIR "/usr/local/src/pgmodeler/pgmodeler-${PGM_VERSION}"
 RUN rm -f .qmake.stash \
  && qmake -r CONFIG+=release pgmodeler.pro \
  && make -j "$(nproc)" \
- && make install
+ && make install \
+ && strip /usr/local/bin/pgmodeler-cli \
+ && strip /usr/local/lib/pgmodeler/*
 
 WORKDIR "/usr/local/lib"
 
