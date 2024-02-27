@@ -1,4 +1,4 @@
-FROM ubuntu:jammy as base
+FROM --platform=$BUILDPLATFORM ubuntu:jammy-20240212 as base
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -15,7 +15,9 @@ RUN apt-get update \
 
 FROM base as builder
 
-ENV PGM_VERSION "1.0.2"
+ARG PGM_VERSION
+
+ENV PGM_VERSION $PGM_VERSION
 
 ENV QT_SELECT qt6
 
@@ -50,7 +52,9 @@ WORKDIR "/usr/local/src/pgmodeler/pgmodeler-${PGM_VERSION}"
 RUN rm -f .qmake.stash \
  && qmake -r CONFIG+=release pgmodeler.pro \
  && make -j "$(nproc)" \
- && make install
+ && make install \
+ && strip /usr/local/bin/pgmodeler-cli \
+ && strip /usr/local/lib/pgmodeler/*
 
 WORKDIR "/usr/local/lib"
 
@@ -73,6 +77,7 @@ RUN tar xvf /tmp/pgmodeler-lib.tar -C /usr/local/lib \
  && tar xvf /tmp/pgmodeler-share.tar -C /usr/local/share \
  && mkdir -p /root/.config \
  && ln -s /usr/local/share/pgmodeler/conf /root/.config/pgmodeler-1.0 \
+ && apt-get install -y fonts-noto-cjk --no-install-recommends \
  && apt-get clean \
  && apt-get autoremove -y \
  && rm -rf /var/lib/apt/lists/* \
