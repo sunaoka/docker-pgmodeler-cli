@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM ubuntu:jammy-20240212 as base
+FROM --platform=$BUILDPLATFORM ubuntu:jammy-20240227 as base
 
 ARG DEBIAN_FRONTEND=noninteractive
 
