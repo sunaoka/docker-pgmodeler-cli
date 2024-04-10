@@ -1,4 +1,4 @@
-PGM_VERSION := 1.1.1
+PGM_VERSION := 1.1.2
 
 IMAGE := sunaoka/pgmodeler-cli
 
@@ -15,7 +15,7 @@ setup:
 
 build: setup
 	docker buildx use $(BUILDER)
-	docker buildx build --platform $(PLATFORM) $(BUILDER_ARGS) --push .
+	docker buildx build --rm --no-cache --platform $(PLATFORM) $(BUILDER_ARGS) --push .
 	docker buildx rm $(BUILDER)
 
 .PHONY: all config setup build
