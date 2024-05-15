@@ -6,7 +6,7 @@ PLATFORM := linux/arm64,linux/amd64
 
 BUILDER := docker-pgmodeler-cli-builder
 
-BUILDER_ARGS := --build-arg PGM_VERSION=$(PGM_VERSION) -t $(IMAGE):latest -t $(IMAGE):$(PGM_VERSION)
+BUILDER_ARGS := --build-arg PGM_VERSION=$(PGM_VERSION) -t $(IMAGE):$(PGM_VERSION) -t $(IMAGE):latest
 
 all: build
 
