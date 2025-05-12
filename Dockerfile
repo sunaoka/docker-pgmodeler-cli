@@ -1,9 +1,9 @@
 # syntax = docker/dockerfile:1.4
-FROM --platform=$BUILDPLATFORM ubuntu:noble-20241118.1 as base
+FROM --platform=$BUILDPLATFORM ubuntu:noble-20250415.1 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN <<EOT sh -ex
+RUN <<'EOT' sh -ex
     apt-get update
     apt-get upgrade -y
     apt-get install -y --no-install-recommends \
@@ -16,7 +16,7 @@ RUN <<EOT sh -ex
 EOT
 
 
-FROM base as builder
+FROM base AS builder
 
 ARG PGM_VERSION
 
@@ -25,7 +25,7 @@ ENV QT_SELECT=qt6
 
 WORKDIR "/usr/local/src/pgmodeler"
 
-RUN <<EOT sh -ex
+RUN <<'EOT' sh -ex
     apt-get install -y --no-install-recommends \
             build-essential \
             ca-certificates \
@@ -39,24 +39,24 @@ RUN <<EOT sh -ex
             curl
 EOT
 
-RUN <<EOT sh -ex
+RUN <<'EOT' sh -ex
     curl -f -o "v${PGM_VERSION}.tar.gz" -LO "https://github.com/pgmodeler/pgmodeler/archive/v${PGM_VERSION}.tar.gz"
     tar -xzf "v${PGM_VERSION}.tar.gz"
 EOT
 
 WORKDIR "/usr/local/src/pgmodeler/pgmodeler-${PGM_VERSION}"
 
-RUN <<EOT sh -ex
+RUN <<'EOT' sh -ex
     rm -f .qmake.stash
     qmake6 -r CONFIG+=release pgmodeler.pro
-    make -j "$(nproc)"
+    make -j"$(nproc)"
     make install
 
     strip /usr/local/bin/pgmodeler-cli
     strip /usr/local/lib/pgmodeler/*
 EOT
 
-RUN <<EOT sh -ex
+RUN <<'EOT' sh -ex
     mkdir -p /tmp/local/bin
     mkdir -p /tmp/local/lib
     mkdir -p /tmp/local/share
@@ -73,9 +73,9 @@ COPY --link --from=builder /tmp/local/ /usr/local/
 ENV QT_QPA_PLATFORM=offscreen
 ENV XDG_RUNTIME_DIR=/tmp/runtime-root
 
-RUN <<EOT sh -ex
+RUN <<'EOT' sh -ex
     mkdir -p /root/.config
-    ln -s /usr/local/share/pgmodeler/conf /root/.config/pgmodeler-1.0
+    ln -s /usr/local/share/pgmodeler/conf /root/.config/pgmodeler-1.2
 
     apt-get install -y fonts-noto-cjk --no-install-recommends
     apt-get clean
