@@ -75,7 +75,7 @@ ENV XDG_RUNTIME_DIR=/tmp/runtime-root
 
 RUN <<'EOT' sh -ex
     mkdir -p /root/.config
-    ln -s /usr/local/share/pgmodeler/conf /root/.config/pgmodeler-1.0
+    ln -s /usr/local/share/pgmodeler/conf /root/.config/pgmodeler-1.2
 
     apt-get install -y fonts-noto-cjk --no-install-recommends
     apt-get clean
