@@ -1,4 +1,4 @@
-PGM_VERSION := 1.2.0
+PGM_VERSION := 1.2.1
 
 IMAGE := sunaoka/pgmodeler-cli
 
@@ -18,4 +18,14 @@ build: setup
 	docker buildx build --rm --no-cache --platform $(PLATFORM) $(BUILDER_ARGS) --push .
 	docker buildx rm $(BUILDER)
 
-.PHONY: all config setup build
+release:
+	git checkout develop
+	git add .
+	git commit -m "Bump to v$(PGM_VERSION)"
+	git checkout main
+	git merge develop --no-ff -m "Merge develop into main for v$(PGM_VERSION)"
+	git tag -a v$(PGM_VERSION) -m "Release v$(PGM_VERSION)"
+	git checkout develop
+	git push origin main develop --tags
+
+.PHONY: all config setup build release
