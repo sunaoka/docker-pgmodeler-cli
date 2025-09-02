@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:1.4
-FROM --platform=$BUILDPLATFORM ubuntu:noble-20250415.1 AS base
+FROM --platform=$BUILDPLATFORM ubuntu:noble-20250716 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
