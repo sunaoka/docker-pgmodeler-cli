@@ -1,4 +1,4 @@
-PGM_VERSION := 1.2.1
+PGM_VERSION := 1.2.2
 
 IMAGE := sunaoka/pgmodeler-cli
 
