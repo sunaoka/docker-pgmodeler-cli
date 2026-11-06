@@ -1,9 +1,9 @@
-# syntax = docker/dockerfile:1.4
-FROM --platform=$BUILDPLATFORM ubuntu:noble-20251001 AS base
-
-ENV DEBIAN_FRONTEND=noninteractive
+# syntax = docker/dockerfile:1
+# check=error=true
+FROM ubuntu:resolute-20261024.1 AS base
 
 RUN <<'EOT' sh -ex
+    export DEBIAN_FRONTEND=noninteractive
     apt-get update
     apt-get upgrade -y
     apt-get install -y --no-install-recommends \
@@ -13,6 +13,7 @@ RUN <<'EOT' sh -ex
             libqt6svg6 \
             libqt6widgets6 \
             qt6-qpa-plugins
+    rm -rf /var/lib/apt/lists/*
 EOT
 
 
@@ -20,37 +21,43 @@ FROM base AS builder
 
 ARG PGM_VERSION
 
-ENV PGM_VERSION=$PGM_VERSION
-ENV QT_SELECT=qt6
-
 WORKDIR "/usr/local/src/pgmodeler"
 
 RUN <<'EOT' sh -ex
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
     apt-get install -y --no-install-recommends \
             build-essential \
             ca-certificates \
-            libgl-dev \
+            clang \
+            cmake \
             libpq-dev \
             libqt6svg6-dev \
-            libxext-dev \
             libxml2-dev \
             pkg-config \
             qt6-base-dev \
+            qt6-tools-dev \
             curl
+    rm -rf /var/lib/apt/lists/*
 EOT
 
 RUN <<'EOT' sh -ex
-    curl -f -o "v${PGM_VERSION}.tar.gz" -LO "https://github.com/pgmodeler/pgmodeler/archive/v${PGM_VERSION}.tar.gz"
+    curl -fL -o "v${PGM_VERSION}.tar.gz" "https://github.com/nullptrlabs/pgmodeler/archive/refs/tags/v${PGM_VERSION}.tar.gz"
     tar -xzf "v${PGM_VERSION}.tar.gz"
 EOT
 
 WORKDIR "/usr/local/src/pgmodeler/pgmodeler-${PGM_VERSION}"
 
 RUN <<'EOT' sh -ex
-    rm -f .qmake.stash
-    qmake6 -r CONFIG+=release pgmodeler.pro
-    make -j"$(nproc)"
-    make install
+    cmake -S . -B build \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DPGM_PREFIX=/usr/local \
+        -DPGM_CONFDIR=/usr/local/share/pgmodeler/conf \
+        -DPGM_LANGDIR=/usr/local/share/pgmodeler/lang \
+        -DPGM_SAMPLESDIR=/usr/local/share/pgmodeler/samples \
+        -DPGM_SCHEMASDIR=/usr/local/share/pgmodeler/schemas
+    cmake --build build --parallel 2
+    cmake --install build
 
     strip /usr/local/bin/pgmodeler-cli
     strip /usr/local/lib/pgmodeler/*
@@ -72,17 +79,18 @@ COPY --link --from=builder /tmp/local/ /usr/local/
 
 ENV QT_QPA_PLATFORM=offscreen
 ENV XDG_RUNTIME_DIR=/tmp/runtime-root
+ENV LANG=C.UTF-8
 
 RUN <<'EOT' sh -ex
     mkdir -p /root/.config
-    ln -s /usr/local/share/pgmodeler/conf /root/.config/pgmodeler-1.2
+    ln -s /usr/local/share/pgmodeler/conf /root/.config/pgmodeler-2.0
 
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
     apt-get install -y fonts-noto-cjk --no-install-recommends
     apt-get clean
-    apt-get autoremove -y
 
     rm -rf /var/lib/apt/lists/*
-    rm -rf /tmp/*
 
     mkdir -p /tmp/runtime-root
     chmod 0700 /tmp/runtime-root
@@ -91,4 +99,5 @@ EOT
 WORKDIR /data
 
 ENTRYPOINT ["/usr/local/bin/pgmodeler-cli"]
+
 CMD []
